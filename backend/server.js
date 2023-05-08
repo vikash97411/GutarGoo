@@ -57,8 +57,8 @@ const server=app.listen(PORT,console.log(`server is running at port ${PORT}`.yel
 const io= require('socket.io')(server,{
     pingTimeOut: 60000,
     cors:{
-        origin:'https://gutargoo.onrender.com'
-         //origin:"http://localhost:3000"
+       // origin:'https://gutargoo.onrender.com'
+         origin:"http://localhost:3000"
     },
 });
 
