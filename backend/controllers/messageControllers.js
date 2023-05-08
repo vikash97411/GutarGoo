@@ -42,7 +42,6 @@ res.json(message);
 const allMessages=asyncHandler(async(req,res)=>{
 try {
     const messages =await Message.find({chat:req.params.chatId})
-                    .limit(25)
                     .populate("sender","name email pic isOnline")
                     .populate("chat");
     res.json(messages);
