@@ -1,8 +1,7 @@
 const asyncHandler=require('express-async-handler')
 const User=require("../models/userModel")
 
-const generateToken=require("../config/generateToken");
-const { ObjectId } = require('mongodb');
+const generateToken=require("../config/generateToken")
 
 const registerUser= asyncHandler(async (req,res)=>{
     const {name ,email,password,pic} =req.body;
@@ -100,9 +99,7 @@ const keyword =req.query.search ?{
 
     //api/user/notification/added
 const notificationReceived = asyncHandler(async (req,res)=>{
-    console.log("notification joined");
     const {userId,message} =req.body;
-    console.log("userId "+userId + " message "+ message);
     if(!userId || !message)
 {
     console.log("Invalid data passed to request");
@@ -110,24 +107,15 @@ const notificationReceived = asyncHandler(async (req,res)=>{
 }
     try {
         const getUser =await User.findOne({_id:req.body.userId});
-        const msgRec=new ObjectId(message._id);
-      const exist=getUser.notificationReceived.includes(msgRec)
-      if(!exist)
-      {
-       getUser.notificationReceived.push(message);
-          await getUser.save();
-         console.log("return from code");
+         getUser.notificationReceived.push(message);
+         await getUser.save();
+         
          return res.status(200).json(getUser);
-      }
-      
-        return;
-        
         
     } catch (error) {
         res.status(400);
         throw new Error(error.message);
     }
-
     });
 
 

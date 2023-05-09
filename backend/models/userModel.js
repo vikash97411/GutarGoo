@@ -22,15 +22,14 @@ const userSchema=mongoose.Schema({
     pic:{
         type:String,
        
-        // default:"https://www.seblod.com/images/medias/62057/_thumb2/2205256774854474505_medium.jpg"
+        default:"https://www.seblod.com/images/medias/62057/_thumb2/2205256774854474505_medium.jpg"
     },
     notificationReceived:
     
             [{
             type:mongoose.Schema.Types.ObjectId,
              ref:"Message",
-            
-                          
+                               
         },],
     
        
@@ -40,16 +39,20 @@ const userSchema=mongoose.Schema({
     timestamps:true,
 });
 
-userSchema.methods.matchPassword=function(enteredPassword){
-    
-   return (enteredPassword == this.password);
+userSchema.methods.matchPassword=async function(enteredPassword){
+    console.log(enteredPassword,this.password);
+    return await bcrypt.compare(enteredPassword , this.password);
+  // return (enteredPassword == this.password);
 }
 
-userSchema.pre('save', function(next){
-
-   this.password=this.password;
-   
-    next();
+userSchema.pre('save',async function(next){
+    if(!this.isModified)
+    {
+        next();
+    }
+  //this.password=this.password;
+     const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password , salt);
 })
 
 const User=mongoose.model("User",userSchema);
