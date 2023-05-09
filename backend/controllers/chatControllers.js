@@ -55,9 +55,11 @@ if(isChat.length>0)
 const fetchChats=asyncHandler(async(req,res)=>{
 try {
     Chat.find({users:{$elemMatch:{$eq:req.user._id}}})
+    
     .populate("users","-password")
     .populate("groupAdmin","-password")
     .populate("latestMessage")
+    
     .sort({updatedAt:-1})
     .then(async (results)=>{
 results=await User.populate(results,{
