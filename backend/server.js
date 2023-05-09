@@ -1,3 +1,5 @@
+
+
 const express=require('express')
 const dotenv=require('dotenv')
 const {chats}=require('./Data/data')
@@ -13,14 +15,16 @@ const User = require('./models/userModel')
 const app=express()
 const path=require("path")
 const url = require('url');
+
 app.use(express.json())
+const cors = require("cors");
 
 dotenv.config()
 connectDB()
 app.use("/api/user",userRoutes)
 app.use("/api/chat",chatRoutes)
 app.use("/api/message",messageRoutes)
-
+app.use(cors());
 
 //________________________________ Deployment code________________________
 
@@ -46,10 +50,15 @@ app.get("/",(req,res)=>{
 const PORT=process.env.PORT||5000
 const server=app.listen(PORT,console.log(`server is running at port ${PORT}`.yellow.bold))
 
+var PeerServer = require('peer').PeerServer;
+ PeerServer({port: 443, path: '/'});
+ app.use(PeerServer);
+
 const io= require('socket.io')(server,{
     pingTimeOut: 60000,
     cors:{
-        origin:"http://localhost:3000",
+       // origin:'https://gutargoo.onrender.com'
+         origin:["http://localhost:3000","https://gutargoo.onrender.com"]
     },
 });
 
@@ -66,10 +75,23 @@ io.on("connection",async(socket)=>{
     });
 
     socket.on("join chat",(room)=>{
+        console.log("room "+ room );
         socket.join(room);
-        console.log("User joined Room:"+ room);
+       
     });
 
+    socket.on("video_chat",(room,userId)=>{
+        var roomId=room+"_video"
+         console.log("video room  "+ roomId +" peerId "+ userId);
+        socket.join(roomId);
+         console.log("User Video Room:"+ roomId);
+        socket.to(roomId).emit('user_connected', userId);
+        console.log("emit user_connected event");
+         socket.on('disconnect', () => {
+        socket.to(roomId).emit('user_disconnected', userId)
+        })
+         })
+  
     socket.on("new message",(newMessageReceived)=>{
         var chat = newMessageReceived.chat;
         chat.users.forEach((user) => {
